@@ -33,6 +33,6 @@ test('буруу нууц үгээр нэвтрэхэд алдаа харуул�
 test('барааг сагсанд нэмээд сагсны тоог шалгах', async ({ page }) => {
   await signIn(page);
   await page.getByRole('button', { name: 'Add to cart' }).first().click();
-  await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+  await expect(page.getByTestId('shopping-cart-badge')).toHaveText('1');
   await signOut(page);
 });
