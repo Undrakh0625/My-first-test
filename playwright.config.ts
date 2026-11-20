@@ -3,11 +3,18 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [['html', { open: 'never' }], ['list']],
   use: {
     baseURL: 'https://www.saucedemo.com',
-    trace: 'on-first-retry',
+    testIdAttribute: 'data-test',
+    trace: 'on',
+    screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    ...devices['Desktop Chrome'],
   },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
 });

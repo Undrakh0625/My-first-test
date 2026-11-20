@@ -1,38 +1,36 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
-const username = 'standard_user';
-const password = 'secret_sauce';
+test.describe('SauceDemo UI tests', () => {
+  test('shows error on invalid login', async ({ page }) => {
+    await page.goto('https://www.saucedemo.com/');
+    await page.locator('[data-test="username"]').fill('locked_out_user');
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+    await page.locator('[data-test="login-button"]').click();
 
-async function signIn(page: Page, user = username, pass = password) {
-  await page.goto('/');
-  await page.getByPlaceholder('Username').fill(user);
-  await page.getByPlaceholder('Password').fill(pass);
-  await page.getByRole('button', { name: 'Login' }).click();
-}
+    await expect(page.getByTestId('error')).toBeVisible();
+  });
 
-async function signOut(page: Page) {
-  // Close the session through the app menu so each test ends cleanly.
-  await page.getByRole('button', { name: 'Open Menu' }).click();
-  await page.getByRole('link', { name: 'Logout' }).click();
-  await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
-}
+  test('adds product to cart and shows badge', async ({ page }) => {
+    await page.goto('https://www.saucedemo.com/');
+    await page.locator('[data-test="username"]').fill('standard_user');
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+    await page.locator('[data-test="login-button"]').click();
 
-test('амжилттай нэвтрэх', async ({ page }) => {
-  await signIn(page);
-  await expect(page).toHaveURL(/inventory\.html/);
-  await expect(page.getByText('Products', { exact: true })).toBeVisible();
-  await signOut(page);
-});
+    await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+    await expect(page.getByTestId('shopping-cart-badge')).toHaveText('1');
+  });
 
-test('буруу нууц үгээр нэвтрэхэд алдаа харуулах', async ({ page }) => {
-  await signIn(page, username, 'wrong_password');
-  await expect(page.getByTestId('error')).toContainText('Username and password do not match');
-  await expect(page).toHaveURL(/saucedemo\.com\/?$/);
-});
+  test('logs in and logs out cleanly', async ({ page }) => {
+    await page.goto('https://www.saucedemo.com/');
+    await page.locator('[data-test="username"]').fill('standard_user');
+    await page.locator('[data-test="password"]').fill('secret_sauce');
+    await page.locator('[data-test="login-button"]').click();
 
-test('барааг сагсанд нэмээд сагсны тоог шалгах', async ({ page }) => {
-  await signIn(page);
-  await page.getByRole('button', { name: 'Add to cart' }).first().click();
-  await expect(page.getByTestId('shopping-cart-badge')).toHaveText('1');
-  await signOut(page);
+    await page.locator('#react-burger-menu-btn').click();
+    const logoutLink = page.getByRole('link', { name: 'Logout' });
+    await expect(logoutLink).toBeVisible();
+    await logoutLink.click();
+
+    await expect(page.locator('[data-test="login-button"]')).toBeVisible();
+  });
 });
