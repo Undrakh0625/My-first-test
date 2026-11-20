@@ -27,7 +27,7 @@ test.describe('SauceDemo UI tests', () => {
     await page.locator('[data-test="login-button"]').click();
 
     await page.locator('#react-burger-menu-btn').click();
-    const logoutLink = page.getByRole('link', { name: 'Logout' });
+    const logoutLink = page.locator('#logout_sidebar_link');
     await expect(logoutLink).toBeVisible();
     await logoutLink.click();
 
